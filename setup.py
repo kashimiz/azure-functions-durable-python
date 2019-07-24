@@ -1,16 +1,24 @@
+import pathlib
+import os
+import shutil
+import subprocess
+import sys
+import glob
+
 from setuptools import setup
+from distutils.command import build
+
 
 class BuildGRPC:
     """Generate gRPC bindings."""
 
     def _gen_grpc(self):
         root = pathlib.Path(os.path.abspath(os.path.dirname(__file__)))
-        proto_root_dir = root / 'azure' / 'durable_functions' / 'protos'
-        proto_src_dir = proto_root_dir / '_src' / 'src' / 'proto'
+        proto_root_dir = root / 'azure' / 'durable_functions' / 'grpc' / 'protobuf'
+        proto_src_dir = proto_root_dir 
         staging_root_dir = root / 'build' / 'protos'
-        staging_dir = (staging_root_dir / 'azure'
-                       / 'durable_functions' / 'protos')
-        build_dir = staging_dir / 'azure' / 'durable_functions' / 'protos'
+        staging_dir = staging_root_dir
+        build_dir = staging_dir
 
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
@@ -19,12 +27,11 @@ class BuildGRPC:
 
         subprocess.run([
             sys.executable, '-m', 'grpc_tools.protoc',
-            '-I', os.sep.join(('azure', 'functions_worker', 'protos')),
+            '-I', str(proto_src_dir),
             '--python_out', str(staging_root_dir),
             '--grpc_python_out', str(staging_root_dir),
-            os.sep.join(('azure', 'functions_worker', 'protos',
-                         'azure', 'functions_worker', 'protos',
-                         'FunctionRpc.proto')),
+            os.sep.join((str(proto_src_dir),
+                         'DurableRpc.proto')),
         ], check=True, stdout=sys.stdout, stderr=sys.stderr,
             cwd=staging_root_dir)
 
@@ -35,6 +42,8 @@ class BuildGRPC:
                   file=sys.stderr)
             sys.exit(1)
 
+        # Not sure if we need this line that will copy both the proto and py generated 
+        # files in the proto root dir
         for f in compiled:
             shutil.copy(f, proto_root_dir)
 
