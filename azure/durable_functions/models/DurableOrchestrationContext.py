@@ -5,10 +5,17 @@ from . import (Task, RetryOptions)
 
 class DurableOrchestrationContext:
 
-    def __init__(self):
-        self.instanceId: str
-        self.isReplaying: bool
-        self.parentInstanceId: str
+    def __init__(self,
+                 instanceId,
+                 isReplaying,
+                 parentInstanceId,
+                 callActivity,
+                 currentUtcDateTime):
+        self.instanceId: str = instanceId
+        self.isReplaying: bool = isReplaying
+        self.parentInstanceId: str = parentInstanceId
+        self.callActivity = callActivity
+        self.currentUtcDateTime = currentUtcDateTime
 
         # self.currentUtcDateTime: Date
         self.currentUtcDateTime: datetime
