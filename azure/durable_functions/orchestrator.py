@@ -21,7 +21,7 @@ class Orchestrator:
         self.customStatus: Any = None
         self.newGuidCounter: int = 0
 
-    async def handle(self, context_string: str):
+    def handle(self, context_string: str):
         context: Dict[str, Any] = json.loads(context_string)
         logging.warn(f"!!!Calling orchestrator handle {context}")
         context_histories: List[HistoryEvent] = context.get("history")
@@ -71,13 +71,13 @@ class Orchestrator:
                     actions.append(partialResult.actions)
 
                 if self.shouldSuspend(partialResult):
+                    logging.warn(f"!!!Generator Suspended")
                     response = OrchestratorState(
                         isDone=False,
                         output=None,
                         actions=actions,
                         customStatus=self.customStatus)
-                    # TODO: Send response
-                    #return response
+                    return response.to_json_string()
 
                 if (isinstance(partialResult, Task)
                    or isinstance(partialResult, TaskSet)) and (
@@ -107,8 +107,7 @@ class Orchestrator:
                 output=None,  # Should have no output, after generation range
                 actions=actions,
                 customStatus=self.customStatus)
-            # TODO: Send response
-            #return response
+            return response.to_json_string()
         except Exception as e:
             logging.warn(f"!!!Generator Termination Other Exception {e}")
             response = OrchestratorState(
@@ -117,8 +116,7 @@ class Orchestrator:
                 actions=actions,
                 error=str(e),
                 customStatus=self.customStatus)
-            # TODO: Send response
-            #return response
+            return response.to_json_string()
 
     def callActivity(self,
                      state: List[HistoryEvent],
@@ -211,6 +209,7 @@ class Orchestrator:
         return None
 
     def shouldSuspend(self, partialResult) -> bool:  #  old_name: shouldFinish
+        logging.warn("!!!shouldSuspend")
         if partialResult is None:
             return False
 
@@ -218,8 +217,6 @@ class Orchestrator:
             return False
 
         return not partialResult.isCompleted
-
-
 
     @classmethod
     def create(cls, fn):
