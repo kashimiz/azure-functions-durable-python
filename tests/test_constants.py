@@ -1,5 +1,5 @@
 import unittest
-from durable_functions.constants import (
+from azure.durable_functions.constants import (
     DEFAULT_LOCAL_HOST,
     DEFAULT_LOCAL_ORIGIN)
 
