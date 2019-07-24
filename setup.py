@@ -15,7 +15,7 @@ class BuildGRPC:
     def _gen_grpc(self):
         root = pathlib.Path(os.path.abspath(os.path.dirname(__file__)))
         proto_root_dir = root / 'azure' / 'durable_functions' / 'grpc' / 'protobuf'
-        proto_src_dir = proto_root_dir 
+        proto_src_dir = proto_root_dir
         staging_root_dir = root / 'build' / 'protos'
         staging_dir = staging_root_dir
         build_dir = staging_dir
@@ -42,16 +42,18 @@ class BuildGRPC:
                   file=sys.stderr)
             sys.exit(1)
 
-        # Not sure if we need this line that will copy both the proto and py generated 
+        # Not sure if we need this line that will copy both the proto and py generated
         # files in the proto root dir
         for f in compiled:
             shutil.copy(f, proto_root_dir)
+
 
 class build(build.build, BuildGRPC):
 
     def run(self, *args, **kwargs):
         self._gen_grpc()
         super().run(*args, **kwargs)
+
 
 setup(
     name='azure-functions-durable-python',
@@ -63,20 +65,15 @@ setup(
     setup_requires=[
         'grpcio~=1.20.1',
         'grpcio-tools~=1.20.1',
+        'python-dateutil==2.8.0',
     ],
     install_requires=[
         'grpcio~=1.20.1',
         'grpcio-tools~=1.20.1',
+        'python-dateutil==2.8.0',
     ],
-    extras_require={
-        'dev': [
-            'flake8==3.7.8',
-            'pytest==5.0.1'
-        ]
-    },
     include_package_data=True,
     cmdclass={
-
         'build': build
     },
     test_suite='tests'

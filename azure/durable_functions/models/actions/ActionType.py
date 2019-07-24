@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class ActionType(Enum):
+class ActionType(IntEnum):
     CallActivity: int = 0
     CallActivityWithRetry: int = 1
     CallSubOrchestrator: int = 2
