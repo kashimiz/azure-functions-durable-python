@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+service DurableRpc {
+    rpc ClientOperation (ClientRequest) returns (ClientResponse) {}
+}
+
+message ClientRequest {
+    enum Type {
+        Status = 0;
+        Create = 1;
+        SendEvent = 2;
+        Terminate = 3;
+        Rewind = 4;
+        Purge = 5;
+    }
+
+    // Type of client request.
+    Type type = 1;
+
+    // properties
+    map<string, RequestData> args = 2;
+}
+
+message ClientResponse {
+    enum Result {
+        Completed = 0;
+        Failed = 1;
+    }
+
+    // 
+    Result result = 1;
+
+    //
+    bytes error = 2;
+
+    // TODO: not bytes
+    ResponseData data = 3;
+}
+
+// Used to encapsulate request data which could be a variety of types
+message RequestData {
+    oneof data {
+        string string = 1;
+        bytes bytes = 2;
+        bool bool = 3;
+        sint64 int = 4;
+        google.protobuf.Timestamp timestamp = 5;
+        CollectionString collection_string = 6;
+    }
+}
+
+// Used to encapsulate response data which could be a variety of types
+message ResponseData {
+    DurableOrchestrationStatus status = 1;
+    StatusCollection status_collection = 2;
+    string string = 3;
+    sint64 int = 4;
+}
+
+// Used to encapsulate collection string
+message CollectionString {
+    repeated string string = 1;
+}
+
+message StatusCollection {
+    repeated DurableOrchestrationStatus state = 1;
+
+    string continuationToken = 2;
+}
+
+message DurableOrchestrationStatus {
+    string name = 1;
+
+    string id = 2;
+
+    google.protobuf.Timestamp createdTime = 3;
+
+    google.protobuf.Timestamp lastUpdatedTime = 4;
+
+    string input = 5;
+
+    string output = 6;
+
+    repeated string runtime_status = 7;
+
+    string customStatus = 8;
+
+    repeated string history = 9;
+}
