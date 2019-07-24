@@ -25,6 +25,10 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
+    python setup.py build
+  displayName: 'Autogenerate gRPC Python files'
+  
+- script: |
     pip install pytest pytest-azurepipelines
     pytest
   displayName: 'pytest'
