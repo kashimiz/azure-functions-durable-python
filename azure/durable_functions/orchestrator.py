@@ -1,5 +1,6 @@
 import logging
 import json
+import traceback
 from typing import Callable, Iterator, List, Any, Union, Dict
 from datetime import datetime
 from dateutil.parser import parse as dtparse
@@ -54,14 +55,16 @@ class Orchestrator:
         partialResult: Union[Task, TaskSet] = None
 
         try:
+            if partialResult is not None:
+                gen_result = gen.send(partialResult.result)
+            else:
+                gen_result = gen.send(None)
+
             while True:
-                gen_result = next(gen)
+                logging.warn(f"!!!actions {actions}")
                 logging.warn(f"!!!Generator Execution {gen_result}")
+
                 partialResult = gen_result
-                if partialResult is not None:
-                    gen.send(partialResult.result)
-                else:
-                    gen.send(None)
 
                 if (isinstance(partialResult, Task)
                    and hasattr(partialResult, "action")):
@@ -100,16 +103,23 @@ class Orchestrator:
                     newTimestamp = dtparse(decisionStartedEvent["Timestamp"])
                     activity_context.df.currentUtcDateTime = newTimestamp
                     self.currentTimestamp = newTimestamp
-        except StopIteration:
-            logging.warn("!!!Generator Termination StopIteration")
+
+                logging.warn(f"!!!Generator Execution {gen_result}")
+                if partialResult is not None:
+                    gen_result = gen.send(partialResult.result)
+                else:
+                    gen_result = gen.send(None)
+        except StopIteration as sie:
+            logging.warn(f"!!!Generator Termination StopIteration {sie}")
             response = OrchestratorState(
                 isDone=True,
-                output=None,  # Should have no output, after generation range
+                output=sie.value,
                 actions=actions,
                 customStatus=self.customStatus)
             return response.to_json_string()
         except Exception as e:
-            logging.warn(f"!!!Generator Termination Other Exception {e}")
+            e_string = traceback.format_exc()
+            logging.warn(f"!!!Generator Termination Exception {e_string}")
             response = OrchestratorState(
                 isDone=False,
                 output=None,  # Should have no output, after generation range
@@ -161,17 +171,21 @@ class Orchestrator:
         tasks = list(
             filter(lambda e: e["EventType"] == HistoryEventType.TaskScheduled
                    and e["Name"] == name
-                   and not e["IsProcessed"], state))
+                   and not e.get("IsProcessed"), state))
 
+        logging.warn(f"!!! findTaskScheduled {tasks}")
         if len(tasks) == 0:
             return None
 
         return tasks[0]
 
     def findTaskCompleted(self, state, scheduledTask):
+        if scheduledTask is None:
+            return None
+
         tasks = list(
             filter(lambda e: e["EventType"] == HistoryEventType.TaskCompleted
-                   and e["TaskScheduledId"] == scheduledTask["EventId"],
+                   and e.get("TaskScheduledId") == scheduledTask["EventId"],
                    state))
 
         if len(tasks) == 0:
@@ -180,9 +194,12 @@ class Orchestrator:
         return tasks[0]
 
     def findTaskFailed(self, state, scheduledTask):
+        if scheduledTask is None:
+            return None
+
         tasks = list(
             filter(lambda e: e["EventType"] == HistoryEventType.TaskFailed
-                   and e["TaskScheduledId"] == scheduledTask["EventId"],
+                   and e.get("TaskScheduledId") == scheduledTask["EventId"],
                    state))
 
         if len(tasks) == 0:
@@ -192,8 +209,12 @@ class Orchestrator:
 
     def setProcessed(self, tasks):
         for task in tasks:
-            if task:
+            if task is not None:
+                logging.warn(f"!!!task {task.get('IsProcessed')}"
+                             f"{task.get('Name')}")
                 task["IsProcessed"] = True
+                logging.warn(f"!!!aftertask {task.get('IsProcessed')}"
+                             f"{task.get('Name')}")
 
     def parseHistoryEvent(self, directiveResult):
         eventType = directiveResult.get("EventType")
@@ -208,15 +229,11 @@ class Orchestrator:
             return directiveResult["Result"]
         return None
 
-    def shouldSuspend(self, partialResult) -> bool:  #  old_name: shouldFinish
+    def shouldSuspend(self, partialResult) -> bool:  # old_name: shouldFinish
         logging.warn("!!!shouldSuspend")
-        if partialResult is None:
-            return False
-
-        if not hasattr(partialResult, "isCompleted"):
-            return False
-
-        return not partialResult.isCompleted
+        return bool(partialResult is not None
+                    and hasattr(partialResult, "isCompleted")
+                    and not partialResult.isCompleted)
 
     @classmethod
     def create(cls, fn):
