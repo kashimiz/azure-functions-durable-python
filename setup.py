@@ -5,7 +5,7 @@ import subprocess
 import sys
 import glob
 
-from setuptools import setup
+from setuptools import setup,find_packages
 from distutils.command import build
 
 
@@ -57,11 +57,10 @@ class build(build.build, BuildGRPC):
 
 setup(
     name='azure-functions-durable-python',
+    packages=find_packages(exclude=("tests","samples")),
     version='1.0.0b10',
     description='Durable Functions Support For Python Functionapp',
     license='MIT',
-    packages=['azure.durable_functions',
-              'azure.durable_functions.models'],
     setup_requires=[
         'grpcio~=1.20.1',
         'grpcio-tools~=1.20.1',
