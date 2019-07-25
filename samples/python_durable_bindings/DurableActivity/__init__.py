@@ -1,7 +1,5 @@
 import logging
 
-import azure.functions as func
-
-
-def main(input:str):
-    logging.warn(input)
+def main(name: str) -> str:
+    logging.warn(f"Activity Triggered: {name}")
+    return f'Hello Activity: {name}!'
