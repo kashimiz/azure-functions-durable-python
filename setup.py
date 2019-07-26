@@ -56,9 +56,9 @@ class build(build.build, BuildGRPC):
 
 
 setup(
-    name='azure-functions-durable-python',
+    name='azure-functions-durable',
     packages=find_packages(exclude=("tests","samples")),
-    version='1.0.0b10',
+    version='1.0.1a1',
     description='Durable Functions Support For Python Functionapp',
     license='MIT',
     setup_requires=[
