@@ -10,11 +10,13 @@ class DurableOrchestrationContext:
                  isReplaying,
                  parentInstanceId,
                  callActivity,
+                 task_all,
                  currentUtcDateTime):
         self.instanceId: str = instanceId
         self.isReplaying: bool = isReplaying
         self.parentInstanceId: str = parentInstanceId
         self.callActivity = callActivity
+        self.task_all = task_all
         self.currentUtcDateTime = currentUtcDateTime
 
         # self.currentUtcDateTime: Date
