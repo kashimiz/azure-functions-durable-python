@@ -47,6 +47,7 @@ class Orchestrator:
                 state=context_histories,
                 name=n,
                 input=i),
+            task_all=lambda t: self.task_all(state=context_histories, tasks=t),
             currentUtcDateTime=self.currentUtcDateTime)
         activity_context = IFunctionContext(df=durable_context)
 
@@ -163,6 +164,21 @@ class Orchestrator:
             )
 
         return Task(isCompleted=False, isFaulted=False, action=newAction)
+
+    def task_all(self, state, tasks):
+        allActions = []
+        results = []
+        isCompleted = True
+        for task in tasks:
+            allActions.append(task.action)
+            results.append(task.result)
+            if not task.isCompleted:
+                isCompleted = False
+
+        if isCompleted:
+            return TaskSet(isCompleted, allActions, results)
+        else:
+            return TaskSet(isCompleted, allActions, None)
 
     def findTaskScheduled(self, state, name):
         if not name:

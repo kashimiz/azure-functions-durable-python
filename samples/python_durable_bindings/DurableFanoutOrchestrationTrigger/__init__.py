@@ -6,7 +6,7 @@ import azure.durable_functions as df
 def generator_function(context):
     tasks = []
 
-    for i in range(10):
+    for i in range(30):
         current_task = context.df.callActivity("DurableActivity", str(i))
         tasks.append(current_task)
 
