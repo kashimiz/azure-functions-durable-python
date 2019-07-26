@@ -16,21 +16,29 @@ A Python SDK for Durable Functions.
 1. Open a new Powershell section
 2. Change directory to `samples\durable_cli`
 3. Drop the restriction policy in Powershell process `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted`
-4. Run `.\setup.ps1`. You should have the latest durable function supports in `func` command.
+4. Run `.\setup.ps1`. You should have the latest durable function supports in `func` command
 5. Change directory to `samples\python_durable_bindings`
 6. Run `func extensions install`
 7. Copy and replace all files from `samples\python_durable_bindings\BinReplace` to `samples\python_durable_bindings\bin`
 8. Create a python virtual environment `py -m venv env` or `python -m venv env` (preferred python 3.6)
 9. Activate virtual environment `env\Scripts\Activate.ps1`
-10. Install python dependencies `pip install -r .\samples\python_durable_bindings\requirements.txt`
-11. Run `func host start`
-12. Invoke the Sequence Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableOrchestrationTrigger`
-13. Invoke the Fanout Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableFanoutOrchestrationTrigger`
+10. Install python dependencies `pip install -r requirements.txt`
+11. Create a new file `local.settings.json` in `samples\python_durable_bindings` with the following content
 
-13. Add breakpoints in **sample functionapp**. Press **F5** to launch the vscode debugger in **sample functionapp**
-14. Open azure-functions-durable-extension Visual Studio solution, debug -> attach to process **func.exe**
-15. Initiate a post request `Invoke-WebRequest -Method Post -Uri http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableFunctionsOrchestratorPY?code=yYfKWggVUA3SaVL5FSodVQ1o4eOX8RAtmmJq7MwlaHwRcrDq2Y7WFQ==`
-16. You should be able to see the logs in **sample functionapp** vscode's console.
+```
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "<Storage Connection String>",
+    "FUNCTIONS_WORKER_RUNTIME": "python"
+  }
+}
+```
+
+12. Run `func host start`
+13. Invoke the Sequence Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableOrchestrationTrigger`
+14. Invoke the Fanout Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableFanoutOrchestrationTrigger`
+
 
 ### Run Tests
 1. Open your shell in this folder.
