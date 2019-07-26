@@ -56,7 +56,7 @@ pip install azure-durable-functions
 ```python
 def main(name: str) -> str:
     logging.info(f"Activity Triggered: {name}")
-    // your code here
+    # your code here
 ```
 
 6. Write an orchestrator function ([see sample](./samples/python_durable_bindings/DurableOrchestrationTrigger)):
