@@ -13,46 +13,19 @@ A Python SDK for Durable Functions.
 
 
 ### Debug E2E with azure-functions-durable-extension
-1. Get a sample functionapp (e.g. [sample function](https://github.com/Hazhzeng/python-durable-function))
-2. Get the latest `npm install -g azure-functions-core-tools`
-3. Open your shell, cd into your **sample function**
-4. `python -m venv env` (or `py -m venv env`)
-5. `env\Scripts\Activate.ps1` to activate virtual environment
-6. `pip install -r requirements.txt`
-7. `pip install ptvsd==4.2.10`
-7. Install durable python library with `pip install -e <azure-functions-durable-python location>`
-8. Install durable host extension with `func extensions install -p Microsoft.Azure.WebJobs.Extensions.DurableTask -v 1.8.3`
-9. Clone the latest [azure-functions-durable-extension](https://github.com/Azure/azure-functions-durable-extension)
-10. Build the azure-functions-durable-extension project in visual studio.
-11. Replace the extension by copying the binary file to your `<sample functionapp>/bin`.
-12. Replace the `<sample functionapp>/.vscode/launch.json` with the following content
-
-```javascript
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Attach to Python Functions",
-            "type": "python",
-            "request": "attach",
-            "port": 9091,
-            "preLaunchTask": "func: host start"
-        }
-    ]
-}
-```
-13. Replace the `<sample functionapp>/host.json` with the following content
-
-```javascript
-{
-    "version":  "2.0",
-    "extensions": {
-        "durableTask": {
-            "hubName": "MyTaskHub8"
-        }
-    }
-}
-```
+1. Open a new Powershell section
+2. Change directory to `samples\durable_cli`
+3. Drop the restriction policy in Powershell process `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted`
+4. Run `.\setup.ps1`. You should have the latest durable function supports in `func` command.
+5. Change directory to `samples\python_durable_bindings`
+6. Run `func extensions install`
+7. Copy and replace all files from `samples\python_durable_bindings\BinReplace` to `samples\python_durable_bindings\bin`
+8. Create a python virtual environment `py -m venv env` or `python -m venv env` (preferred python 3.6)
+9. Activate virtual environment `env\Scripts\Activate.ps1`
+10. Install python dependencies `pip install -r .\samples\python_durable_bindings\requirements.txt`
+11. Run `func host start`
+12. Invoke the Sequence Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableOrchestrationTrigger`
+13. Invoke the Fanout Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableFanoutOrchestrationTrigger`
 
 13. Add breakpoints in **sample functionapp**. Press **F5** to launch the vscode debugger in **sample functionapp**
 14. Open azure-functions-durable-extension Visual Studio solution, debug -> attach to process **func.exe**
