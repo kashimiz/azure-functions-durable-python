@@ -9,7 +9,7 @@ The `azure-functions-durable` [pip](https://pypi.org/project/azure-functions-dur
 You can find more information at the following links:
 
 * [Azure Functions overview](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview)
-* [Azure Functions JavaScript developers guide](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-node)
+* [Azure Functions Python developers guide](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-python)
 * [Durable Functions overview](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview)
 
 A durable function, or _orchestration_, is a solution made up of different types of Azure Functions:
@@ -56,7 +56,7 @@ pip install azure-durable-functions
 ```python
 def main(name: str) -> str:
     logging.info(f"Activity Triggered: {name}")
-    // your code here
+    # your code here
 ```
 
 6. Write an orchestrator function ([see sample](./samples/python_durable_bindings/DurableOrchestrationTrigger)):
