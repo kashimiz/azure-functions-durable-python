@@ -1,61 +1,100 @@
-# azure-functions-durable-python
-A Python SDK for Durable Functions.
+# Durable Functions for Python
 
+The `azure-functions-durable` [pip](https://pypi.org/project/azure-functions-durable/) package allows you to write [Durable Functions](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview) for Python(https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-node). Durable Functions is an extension of [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that lets you write stateful functions and workflows in a serverless environment. The extension manages state, checkpoints, and restarts for you. Durable Functions' advantages include:
 
-### Development Environment Setup
-1. Open your shell in this folder.
-2. `python -m venv env` (or `py -m venv env`)
-3. Open a vscode in this folder.
-4. In vscode, hit `F1`, `Python: Select Interpreter`, select the one endswith **env**
-5. In vscode shell, run `pip install -r requirements.txt`
-6. In vscode, hit `F1`, `Python: Select Linter`, select **flake8**
-7. Contribute by adding more code (or subtracting more code)
+* Define workflows in code. No JSON schemas or designers are needed.
+* Call other functions synchronously and asynchronously. Output from called functions can be saved to local variables.
+* Automatically checkpoint progress whenever the function schedules async work. Local state is never lost if the process recycles or the VM reboots.
 
+You can find more information at the following links:
 
-### Debug E2E with azure-functions-durable-extension
-1. Open a new Powershell section
-2. Change directory to `samples\durable_cli`
-3. Drop the restriction policy in Powershell process `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted`
-4. Run `.\setup.ps1`. You should have the latest durable function supports in `func` command
-5. Change directory to `samples\python_durable_bindings`
-6. Run `func extensions install`
-7. Copy and replace all files from `samples\python_durable_bindings\BinReplace` to `samples\python_durable_bindings\bin`
-8. Create a python virtual environment `py -m venv env` or `python -m venv env` (preferred python 3.6)
-9. Activate virtual environment `env\Scripts\Activate.ps1`
-10. Install python dependencies `pip install -r requirements.txt`
-11. Create a new file `local.settings.json` in `samples\python_durable_bindings` with the following content
+* [Azure Functions overview](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview)
+* [Azure Functions JavaScript developers guide](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-node)
+* [Durable Functions overview](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview)
 
+A durable function, or _orchestration_, is a solution made up of different types of Azure Functions:
+
+* **Activity:** the functions and tasks being orchestrated by your workflow.
+* **Orchestrator:** a function that describes the way and order actions are executed in code.
+* **Client:** the entry point for creating an instance of a durable orchestration.
+
+Durable Functions' function types and features are documented in-depth [here.](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-types-features-overview)
+
+## Getting Started
+
+You can follow the instructions below to get started with a function chaining example, or follow the general checklist below:
+
+1. Install prerequisites:
+    - [Azure Functions Core Tools version 2.x](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools)
+    - [Azure Storage Emulator](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) (Windows) or an actual Azure storage account (Mac or Linux)
+    - Python 3.6 or later
+
+2. [Create an Azure Functions app.](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-function-python) 
+
+3. Install the Durable Functions extension
+
+Run this command from the root folder of your Azure Functions app:
+```bash
+func extensions install -p Microsoft.Azure.WebJobs.Extensions.DurableTask -v 1.8.3
 ```
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "<Storage Connection String>",
-    "FUNCTIONS_WORKER_RUNTIME": "python"
-  }
-}
+
+**durable-functions requires Microsoft.Azure.WebJobs.Extensions.DurableTask 1.7.0 or greater.**
+
+4. Install the `azure-durable-functions` pip package at the root of your function app:
+
+Create and activate virtual environment
+```
+python3 -m venv env
+source env/bin/activate
 ```
 
-12. Run `func host start`
-13. Invoke the Sequence Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableOrchestrationTrigger`
-14. Invoke the Fanout Orchestrator by `POST http://localhost:7071/runtime/webhooks/durabletask/orchestrators/DurableFanoutOrchestrationTrigger`
+```bash
+pip install azure-durable-functions
+```
 
+5. Write an activity function ([see sample](./samples/python_durable_bindings/DurableActivity)):
+```python
+def main(name: str) -> str:
+    logging.info(f"Activity Triggered: {name}")
+    // your code here
+```
 
-### Run Tests
-1. Open your shell in this folder.
-2. `python -m venv env` (or `py -m venv env`)
-3. `env\Scripts\Activate.ps1` to activate virtual environment
-4. `pip install -r requirements.txt`
-5. To run test against specific test file. Use `pytest <test file>` (e.g. `.\tests\test_constants.py`)
+6. Write an orchestrator function ([see sample](./samples/python_durable_bindings/DurableOrchestrationTrigger)):
 
+```python
+def main(context: str):
+    orchestrate = df.Orchestrator.create(generator_function)
+    result = orchestrate(context)
+    return result
+```
 
-### Run E2E in development mode
-1. Get a sample functionapp (e.g. [sample function](https://github.com/Hazhzeng/python-durable-function))
-2. Get the latest `npm install -g azure-functions-core-tools`
-3. Open your shell, cd into your **sample function**
-4. `python -m venv env` (or `py -m venv env`)
-5. `env\Scripts\Activate.ps1` to activate virtual environment
-6. `pip install -r requirements.txt`
-7. Install durable python library with `pip install -e <azure-functions-durable-python location>`
-8. Install durable host extension with `func extensions install -p Microsoft.Azure.WebJobs.Extensions.DurableTask -v 1.8.3`
-9. Run your **sample function** with `func host start`
-10. Trigger orchistrator with `Invoke-WebRequest -Method Post http://localhost:<port>/api/<orchestrators route>` (e.g. `Invoke-WebRequest -Method Post -Uri http://localhost:7071/api/orchestrators/DurableFunctionsOrchestratorPY`)
+**Note:** Orchestrator functions must follow certain [code constraints.](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-checkpointing-and-replay#orchestrator-code-constraints)
+
+7. Write your client function ([see sample](./samples/DurableOrchestrationClient/)):
+
+TBD
+
+**Note:** Client functions are started by a trigger binding available in the Azure Functions 2.x major version. [Read more about trigger bindings and 2.x-supported bindings.](https://docs.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings#overview)
+
+## Samples
+
+The [Durable Functions samples](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-install) demonstrate several common use cases. They are located in the [samples directory.](./samples/) Descriptive documentation is also available:
+
+* [Function Chaining - Hello Sequence](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-sequence)
+* [Fan-out/Fan-in - Cloud Backup](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-cloud-backup)
+* [Monitors - Weather Watcher](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-monitor)
+* [Human Interaction & Timeouts - Phone Verification](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-phone-verification)
+
+```python
+def generator_function(context):
+    outputs = []
+    task1 = yield context.df.callActivity("DurableActivity", "One")
+    task2 = yield context.df.callActivity("DurableActivity", "Two")
+    task3 = yield context.df.callActivity("DurableActivity", "Three")
+
+    outputs.append(task1)
+    outputs.append(task2)
+    outputs.append(task3)
+
+    return outputs
+```
