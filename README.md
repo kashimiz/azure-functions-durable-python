@@ -40,7 +40,7 @@ func extensions install -p Microsoft.Azure.WebJobs.Extensions.DurableTask -v 1.8
 
 **durable-functions requires Microsoft.Azure.WebJobs.Extensions.DurableTask 1.7.0 or greater.**
 
-4. Install the `azure-durable-functions` pip package at the root of your function app:
+4. Install the `azure-functions-durable` pip package at the root of your function app:
 
 Create and activate virtual environment
 ```
