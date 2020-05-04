@@ -1,3 +1,5 @@
+## NOTE: This repo houses a hackathon prototype. For the actual, officially-supported Durable Functions for Python library, please visit https://github.com/Azure/azure-functions-durable-python
+
 # Durable Functions for Python
 
 The `azure-functions-durable` [pip](https://pypi.org/project/azure-functions-durable/) package allows you to write [Durable Functions](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview) for Python(https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-node). Durable Functions is an extension of [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that lets you write stateful functions and workflows in a serverless environment. The extension manages state, checkpoints, and restarts for you. Durable Functions' advantages include:
