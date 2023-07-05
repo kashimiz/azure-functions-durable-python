@@ -62,12 +62,12 @@ setup(
     description='Durable Functions Support For Python Functionapp',
     license='MIT',
     setup_requires=[
-        'grpcio~=1.20.1',
+        'grpcio>=1.20.1,<1.54.0',
         'grpcio-tools~=1.20.1',
         'python-dateutil==2.8.0',
     ],
     install_requires=[
-        'grpcio~=1.20.1',
+        'grpcio>=1.20.1,<1.54.0',
         'grpcio-tools~=1.20.1',
         'python-dateutil==2.8.0',
     ],
